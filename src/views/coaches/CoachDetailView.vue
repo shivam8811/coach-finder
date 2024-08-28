@@ -35,6 +35,7 @@
                     :title="area"
                 />
             </div>
+            <p>{{ description }}</p>
         </base-card>
     </section>
 

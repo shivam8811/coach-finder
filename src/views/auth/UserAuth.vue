@@ -5,11 +5,15 @@
     import { useField, useForm } from 'vee-validate';
     import ErrorMessage from '@/components/ErrorMessage.vue';
     import router from '@/router/index.js';
+    import { storeToRefs } from 'pinia';
 
     const authStore = useAuthStore();
+    const { loggingIn } = storeToRefs(authStore);
     const { signup, login } = authStore;
 
     const mode = ref('login');
+    const dialog = ref(false);
+
     const schema = yup.object({
         email: yup.string().required().email(),
         password: yup.string().required(),
@@ -40,21 +44,8 @@
         // console.log(results); // a detailed map of field names and their validation results
     }
 
-    const submitButtonCaption = computed(() => {
-        return mode.value === 'login' ? 'Login' : 'Signup';
-    })
-
-    const switchModeButtonCaption = computed(() => {
-        return mode.value === 'login' ? 'Signup instead' : 'Login instead';
-    })
-
-    const switchModeInfoCaption = computed(() => {
-        return mode.value === 'login' ? "Don't have an account ?" : 'Already have an account ?';
-    })
-
     function switchAuthMode() {
         mode.value = mode.value === 'login' ? 'signup' : 'login';
-        console.log('switchAuthMode');
     }
 </script>
 
@@ -72,10 +63,91 @@
                     <ErrorMessage :message="errors.password" />
                 </div>
             </div>
+
             <div class="d-flex flex-column mt-5">
-                <base-button type="submit">{{ submitButtonCaption }}</base-button>
-                <small class="mt-2">{{ switchModeInfoCaption }}</small>
-                <base-button @click="switchAuthMode" variant="flat">{{ switchModeButtonCaption }}</base-button>
+                <base-button type="submit" :loading="loggingIn">Login</base-button>
+
+                <div class="pa-4 text-center">
+                    <small class="mt-2">Don't have an account ?</small>
+                    <v-dialog
+                        v-model="dialog"
+                        max-width="600"
+                    >
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <v-btn
+                                class="text-none font-weight-regular"
+                                prepend-icon="mdi-account"
+                                text="Signup instead"
+                                variant="tonal"
+                                v-bind="activatorProps"
+                                @click="switchAuthMode"
+                            ></v-btn>
+                        </template>
+
+                        <v-card
+                            prepend-icon="mdi-account"
+                            title="User Profile"
+                        >
+                            <v-card-text>
+                                <v-row>
+                                    <v-col>
+                                        <v-text-field
+                                            hint="example of helper text only on focus"
+                                            label="Middle name"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                                <v-row>
+                                    <v-col>
+                                        <v-text-field
+                                            hint="example of helper text only on focus"
+                                            label="Middle name"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                                <v-row>
+                                    <v-col>
+                                        <v-text-field
+                                            hint="example of helper text only on focus"
+                                            label="Middle name"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                                <v-row>
+                                    <v-col>
+                                        <v-text-field
+                                            hint="example of helper text only on focus"
+                                            label="Middle name"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                                <small class="text-caption text-medium-emphasis">*indicates required field</small>
+                            </v-card-text>
+
+                            <v-divider></v-divider>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    text="Close"
+                                    variant="plain"
+                                    @click="dialog = false"
+                                ></v-btn>
+
+                                <v-btn
+                                    color="primary"
+                                    text="Signup"
+                                    variant="tonal"
+                                    @click="dialog = false"
+                                ></v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                </div>
             </div>
         </v-form>
     </v-sheet>
