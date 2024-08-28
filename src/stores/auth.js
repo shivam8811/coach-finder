@@ -7,8 +7,11 @@ export const useAuthStore = defineStore('auth', () => {
     const token = ref(null)
     const tokenExpiration = ref(null)
     const isAuthenticated = ref(false)
+    const loggingIn = ref(false)
+    let timer = null
 
     async function login(email, password) {
+        loggingIn.value = true
         const url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA-1BaNg1DjyKuS2zGNmZNCcj_cXdpFez4'
         try {
             const response = await axios.post(url, {
@@ -19,22 +22,40 @@ export const useAuthStore = defineStore('auth', () => {
             if (response && response.data) {
                 userId.value = response.data.localId
                 token.value = response.data.idToken
-                tokenExpiration.value = response.data.expiresIn
+
+                const expiresIn = +response.data.expiresIn * 1000
+                const expirationDate = new Date().getTime() + expiresIn
+                tokenExpiration.value = expirationDate
                 isAuthenticated.value = true
 
                 localStorage.setItem('userId', response.data.localId)
                 localStorage.setItem('token', response.data.idToken)
+                localStorage.setItem('tokenExpiration', expirationDate)
+
+                timer = setTimeout(() => {
+                    logout()
+                }, expiresIn)
             }
-            console.log('login2: ', response.data)
-            console.log('local id: ', response.data.localId)
         } catch (error) {
             console.log(error)
+        } finally {
+            loggingIn.value = false
         }
     }
 
     function autoLogin() {
         const userIdLocal = localStorage.getItem('userId')
         const tokenLocal = localStorage.getItem('token')
+        const tokenExpirationLocal = localStorage.getItem('tokenExpiration')
+        const expiresIn = +tokenExpirationLocal - new Date().getTime()
+        if (expiresIn < 0) {
+            return
+        }
+
+        timer = setTimeout(() => {
+            logout()
+        }, expiresIn)
+
         if (userIdLocal && tokenLocal) {
             userId.value = userIdLocal
             token.value = tokenLocal
@@ -61,10 +82,15 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
     function logout() {
+        localStorage.removeItem('userId')
+        localStorage.removeItem('token')
+        localStorage.removeItem('tokenExpiration')
+        clearTimeout(timer)
         userId.value = null
         token.value = null
         isAuthenticated.value = false
     }
+
     return {
         isAuthenticated,
         userId,
@@ -72,5 +98,6 @@ export const useAuthStore = defineStore('auth', () => {
         autoLogin,
         logout,
         signup,
+        loggingIn,
     }
 })

@@ -5,8 +5,10 @@ import axios from 'axios';
 export const useCoachStore = defineStore('coach', () => {
     const coaches = ref([])
     const hasCoaches = computed(() => coaches.value && coaches.value.length > 0)
+    const loadingCoaches = ref(false)
 
     async function loadCoaches() {
+        loadingCoaches.value = true
         try {
             const response = await axios.get('https://coach-finder-3a531-default-rtdb.europe-west1.firebasedatabase.app/coaches.json')
 
@@ -18,15 +20,18 @@ export const useCoachStore = defineStore('coach', () => {
                         ...coach,
                     });
                 }
-                console.log('coach', coach);
+                console.log('coach2', coach);
             });
         } catch (error) {
             console.log('error', error)
+        } finally {
+            loadingCoaches.value = false
         }
     }
 
     return {
         loadCoaches,
+        loadingCoaches,
         hasCoaches,
         coaches,
     }

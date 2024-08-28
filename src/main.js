@@ -16,6 +16,7 @@ import BaseCard from '@/components/ui/BaseCard.vue';
 import BaseButton from '@/components/ui/BaseButton.vue';
 import BaseBadge from '@/components/ui/BaseBadge.vue';
 import BaseTextField from '@/components/ui/BaseTextField.vue';
+import BaseSkeletonLoader from '@/components/ui/BaseSkeletonLoader.vue';
 
 const vuetify = createVuetify({
     components,
@@ -32,5 +33,6 @@ app.component('BaseCard', BaseCard)
 app.component('BaseButton', BaseButton)
 app.component('BaseBadge', BaseBadge)
 app.component('BaseTextField', BaseTextField)
+app.component('BaseSkeletonLoader', BaseSkeletonLoader)
 
 app.mount('#app')

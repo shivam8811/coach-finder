@@ -4,9 +4,11 @@ import axios from 'axios';
 
 export const useRequestStore = defineStore('request', () => {
     const requests = ref([])
+    const loadingRequests = ref(false)
     const hasRequests = computed(() => requests.value && requests.value.length > 0)
 
     async function fetchRequests() {
+        loadingRequests.value = true
         try {
             const response = await axios.get('https://coach-finder-3a531-default-rtdb.europe-west1.firebasedatabase.app/requests.json')
 
@@ -22,6 +24,8 @@ export const useRequestStore = defineStore('request', () => {
             });
         } catch (error) {
             console.log('error', error)
+        } finally {
+            loadingRequests.value = false
         }
     }
 
@@ -29,5 +33,6 @@ export const useRequestStore = defineStore('request', () => {
         fetchRequests,
         hasRequests,
         requests,
+        loadingRequests,
     }
 })

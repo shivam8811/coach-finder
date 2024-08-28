@@ -5,7 +5,7 @@
     import { onMounted } from 'vue';
 
     const requestStore = useRequestStore()
-    const { hasRequests, requests } = storeToRefs(requestStore);
+    const { hasRequests, requests, loadingRequests } = storeToRefs(requestStore);
     const { fetchRequests } = requestStore;
 
     onMounted(() => {
@@ -16,7 +16,11 @@
 
 <template>
     <section>
-        <base-card>
+        <BaseSkeletonLoader
+            v-if="loadingRequests"
+            class="border"
+        />
+        <base-card v-else>
             <template v-if="hasRequests">
                 <header>
                     <h2>Requests Received</h2>
@@ -29,7 +33,3 @@
         </base-card>
     </section>
 </template>
-
-<style scoped>
-
-</style>
