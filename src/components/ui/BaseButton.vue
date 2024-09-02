@@ -12,6 +12,18 @@
             type: String,
             default: 'button',
         },
+        text: {
+            type: String,
+            default: '',
+        },
+        appendIcon: {
+            type: String,
+            default: '',
+        },
+        prependIcon: {
+            type: String,
+            default: '',
+        },
     })
 </script>
 
@@ -20,7 +32,10 @@
         v-if="!link"
         class="base-button"
         :type="type"
+        :append-icon="appendIcon"
+        :prepend-icon="prependIcon"
     >
+        {{ text }}
         <slot></slot>
     </v-btn>
 
@@ -31,6 +46,7 @@
         rounded
         variant="outlined"
     >
+        {{ text }}
         <slot></slot>
     </v-btn>
 </template>

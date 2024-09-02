@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
     const tokenExpiration = ref(null)
     const isAuthenticated = ref(false)
     const loggingIn = ref(false)
+    const signingUp = ref(false)
     let timer = null
 
     async function login(email, password) {
@@ -64,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function signup(email, password) {
+        signingUp.value = true
         const url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA-1BaNg1DjyKuS2zGNmZNCcj_cXdpFez4'
         try {
             const response = await axios.post(url, {
@@ -79,8 +81,11 @@ export const useAuthStore = defineStore('auth', () => {
             }
         } catch (error) {
             console.log(error)
+        } finally {
+            signingUp.value = false
         }
     }
+
     function logout() {
         localStorage.removeItem('userId')
         localStorage.removeItem('token')
@@ -95,9 +100,10 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         userId,
         login,
+        loggingIn,
         autoLogin,
         logout,
         signup,
-        loggingIn,
+        signingUp,
     }
 })
