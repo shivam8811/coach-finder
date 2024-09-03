@@ -64,23 +64,25 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function signup(email, password) {
+    async function signup(formData) {
+        const data = {
+            ...formData,
+            returnSecureToken: true,
+        }
         signingUp.value = true
         const url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA-1BaNg1DjyKuS2zGNmZNCcj_cXdpFez4'
         try {
-            const response = await axios.post(url, {
-                email,
-                password,
-                returnSecureToken: true,
-            })
-            console.log('signup: ', response.data)
+            const response = await axios.post(url, data)
             if (response && response.data) {
                 userId.value = response.data.localId
                 token.value = response.data.idToken
                 tokenExpiration.value = response.data.expiresIn
             }
+            return response.data;
         } catch (error) {
-            console.log(error)
+            console.log('error_msg', error.message)
+            console.log('error_res', error.response.data.error.message)
+            throw new Error('An error occurred during signup. Please try again.');
         } finally {
             signingUp.value = false
         }

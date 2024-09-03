@@ -1,7 +1,5 @@
 <script setup>
-    import { ref } from 'vue';
-    import BaseTextField from '@/components/ui/BaseTextField.vue';
-    import BaseButton from '@/components/ui/BaseButton.vue';
+import { reactive, ref } from 'vue';
     import { useAuthStore } from '@/stores/auth.js';
     import { storeToRefs } from 'pinia';
     import * as yup from 'yup';
@@ -14,6 +12,13 @@
     const { signingUp } = storeToRefs(authStore);
     const { signup } = authStore;
 
+    const snackbar = reactive({
+        visible: false,
+        message: '',
+        timeout: 3000,
+        color: 'success',
+    });
+
     const schema = yup.object({
         firstName: yup.string().required(errorMessages.required('First name')),
         middleName: yup.string(),
@@ -25,9 +30,23 @@
     });
     const { fields, errors, submitForm } = useFormHandler(schema, onSuccess, onInvalidSubmit);
 
-    function onSuccess(values) {
+    async function onSuccess(values) {
         console.log('submitForm', values);
-        // signup();
+        try {
+            const data = await signup(values);
+            console.log('success', data);
+            showSnackbar('Signup successful. You can now login.', 'success');
+        } catch (error) {
+            showSnackbar(error, 'error');
+        } finally {
+            showSignupForm.value = false;
+        }
+    }
+
+    function showSnackbar(message = '', color = 'success') {
+        snackbar.visible = true;
+        snackbar.message = message;
+        snackbar.color = color;
     }
 
     function onInvalidSubmit({ values, errors, results }) {
@@ -39,7 +58,15 @@
 </script>
 
 <template>
-    <div class="pa-4 text-center">
+    <div class="pa-4 text-center">{{ snackbar.visible }}
+        <v-snackbar
+            v-model="snackbar.visible"
+            :timeout="snackbar.timeout"
+            :color="snackbar.color"
+        >
+            {{ snackbar.message }}
+        </v-snackbar>
+
         <small class="mt-2">Don't have an account ?</small>
         <v-dialog
             v-model="showSignupForm"
