@@ -5,8 +5,9 @@
     import { useAuthStore } from '@/stores/auth.js';
     import { storeToRefs } from 'pinia';
     import * as yup from 'yup';
-    import { useField, useForm } from 'vee-validate';
     import ErrorMessage from '@/components/ErrorMessage.vue';
+    import { useFormHandler } from '@/composables/formHandler.js';
+    import { errorMessages } from '@/config/errorMessages.js';
 
     const showSignupForm = ref(false);
     const authStore = useAuthStore();
@@ -14,37 +15,26 @@
     const { signup } = authStore;
 
     const schema = yup.object({
-        firstName: yup.string().required(),
-        lastName: yup.string().required(),
-        email: yup.string().required().email(),
+        firstName: yup.string().required(errorMessages.required('First name')),
+        middleName: yup.string(),
+        lastName: yup.string().required(errorMessages.required('Last name')),
+        email: yup.string().required(errorMessages.required).email(errorMessages.type.email),
         phone: yup.string(),
-        password: yup.string().required(),
-        confirmPassword: yup.string().required(),
+        password: yup.string().required(errorMessages.required('Password')),
+        confirmPassword: yup.string().required(errorMessages.required('Please confirm password', true)),
     });
-
-    const { errors, handleSubmit } = useForm({
-        validationSchema: schema,
-    });
-
-    const { value: firstName } = useField('firstName')
-    const { value: middleName } = useField('middleName')
-    const { value: lastName } = useField('lastName')
-    const { value: email } = useField('email')
-    const { value: phone } = useField('phone')
-    const { value: password } = useField('password')
-    const { value: confirmPassword } = useField('confirmPassword')
-
-    const submitForm = handleSubmit(onSuccess, onInvalidSubmit);
+    const { fields, errors, submitForm } = useFormHandler(schema, onSuccess, onInvalidSubmit);
 
     function onSuccess(values) {
-        console.log('submitForm');
+        console.log('submitForm', values);
         // signup();
     }
 
     function onInvalidSubmit({ values, errors, results }) {
-        // console.log(values); // current form values
-        // console.log(errors); // a map of field names and their first error message
-        // console.log(results); // a detailed map of field names and their validation results
+        console.log('errors:::'); // current form values
+        console.log(values); // current form values
+        console.log(errors); // a map of field names and their first error message
+        console.log(results); // a detailed map of field names and their validation results
     }
 </script>
 
@@ -72,17 +62,17 @@
                 <v-card-text>
                     <v-row>
                         <v-col cols="12" md="4">
-                            <BaseTextField label="First name*" v-model="firstName" />
+                            <BaseTextField label="First name*" v-model.trim="fields['firstName']" />
                             <ErrorMessage v-if="errors.firstName" :message="errors.firstName" />
                         </v-col>
 
                         <v-col cols="12" md="4">
-                            <BaseTextField label="Middle name" v-model="middleName" />
+                            <BaseTextField label="Middle name" v-model.trim="fields['middleName']" />
                         </v-col>
 
                         <v-col cols="12" md="4">
-                            <BaseTextField label="Last name*" v-model="lastName" />
-                            <ErrorMessage :message="errors.lastName" />
+                            <BaseTextField label="Last name*" v-model.trim="fields['lastName']" />
+                            <ErrorMessage v-if="errors.lastName" :message="errors.lastName" />
                         </v-col>
                     </v-row>
 
@@ -91,17 +81,17 @@
                             <BaseTextField
                                 label="E-Mail*"
                                 type="email"
-                                v-model="email"
+                                v-model.trim="fields['email']"
                                 prepend-inner-icon="mdi-at"
                             />
-                            <ErrorMessage :message="errors.email" />
+                            <ErrorMessage v-if="errors.email" :message="errors.email" />
                         </v-col>
 
                         <v-col cols="12" md="6">
                             <BaseTextField
                                 label="Phone"
                                 type="tel"
-                                v-model="phone"
+                                v-model.trim="fields['phone']"
                                 prepend-inner-icon="mdi-phone"
                             />
                         </v-col>
@@ -112,18 +102,18 @@
                             <BaseTextField
                                 label="Password*"
                                 type="password"
-                                v-model="password"
+                                v-model="fields['password']"
                             />
-                            <ErrorMessage :message="errors.password" />
+                            <ErrorMessage v-if="errors.password" :message="errors.password" />
                         </v-col>
 
                         <v-col cols="12" md="6">
                             <BaseTextField
                                 label="Confirm password*"
                                 type="password"
-                                v-model="confirmPassword"
+                                v-model="fields['confirmPassword']"
                             />
-                            <ErrorMessage :message="errors.confirmPassword" />
+                            <ErrorMessage v-if="errors.confirmPassword" :message="errors.confirmPassword" />
                         </v-col>
                     </v-row>
                     <small class="text-caption text-medium-emphasis">*indicates required field</small>

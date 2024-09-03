@@ -55,7 +55,7 @@
                         type="email"
                         v-model="email"
                     />
-                    <ErrorMessage :message="errors.email" />
+                    <ErrorMessage v-if="errors.email" :message="errors.email" />
                 </div>
 
                 <div>
@@ -64,7 +64,7 @@
                         type="password"
                         v-model="password"
                     />
-                    <ErrorMessage :message="errors.password" />
+                    <ErrorMessage v-if="errors.password" :message="errors.password" />
                 </div>
             </div>
 

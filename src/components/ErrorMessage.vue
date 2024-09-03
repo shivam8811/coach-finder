@@ -1,6 +1,9 @@
 <script setup>
-    const props = defineProps({
-        message: String,
+    defineProps({
+        message: {
+            type: String,
+            required: true,
+        },
     })
 </script>
 

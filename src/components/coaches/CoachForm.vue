@@ -69,12 +69,12 @@
             <v-row>
                 <v-col cols="12" md="6">
                     <BaseTextField v-model.trim="firstName" label="First name*" />
-                    <ErrorMessage :message="errors.firstName" />
+                    <ErrorMessage v-if="errors.firstName" :message="errors.firstName" />
                 </v-col>
 
                 <v-col cols="12" md="6">
                     <BaseTextField v-model.trim="lastName" label="Last name*" />
-                    <ErrorMessage :message="errors.lastName" />
+                    <ErrorMessage v-if="errors.lastName" :message="errors.lastName" />
                 </v-col>
             </v-row>
 
@@ -86,14 +86,14 @@
                         variant="outlined"
                         hide-details
                     ></v-textarea>
-                    <ErrorMessage :message="errors.description" />
+                    <ErrorMessage v-if="errors.description" :message="errors.description" />
                 </v-col>
             </v-row>
 
             <v-row>
                 <v-col cols="12" md="6">
                     <BaseTextField v-model.trim="hourlyRate" label="Hourly rate*" />
-                    <ErrorMessage :message="errors.hourlyRate" />
+                    <ErrorMessage v-if="errors.hourlyRate" :message="errors.hourlyRate" />
                 </v-col>
 
                 <v-col cols="12" md="6">
@@ -106,7 +106,7 @@
                         chips
                         multiple
                     ></v-select>
-                    <ErrorMessage :message="errors.areas" />
+                    <ErrorMessage v-if="errors.areas" :message="errors.areas" />
                 </v-col>
             </v-row>
 
