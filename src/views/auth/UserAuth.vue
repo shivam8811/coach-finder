@@ -1,47 +1,43 @@
 <script setup>
-    import { ref } from 'vue';
     import { useAuthStore } from '@/stores/auth.js';
     import * as yup from 'yup';
-    import { useField, useForm } from 'vee-validate';
     import ErrorMessage from '@/components/ErrorMessage.vue';
     import router from '@/router/index.js';
     import { storeToRefs } from 'pinia';
     import UserSignup from '@/components/auth/UserSignup.vue';
+    import { useFormHandler } from '@/composables/formHandler.js';
+    import { errorMessages } from '@/config/errorMessages.js';
+    import { useSnackbarStore } from '@/stores/snackbar.js';
 
     const authStore = useAuthStore();
-    const { loggingIn } = storeToRefs(authStore);
-    const { signup, login } = authStore;
+    const { isLoggingIn } = storeToRefs(authStore);
+    const { login } = authStore;
 
-    const mode = ref('login');
+    const snackbarStore = useSnackbarStore();
+    const { showSnackbar } = snackbarStore;
 
     const schema = yup.object({
-        email: yup.string().required().email(),
-        password: yup.string().required(),
+        email: yup.string().required(errorMessages.required).email(errorMessages.type.email),
+        password: yup.string().required(errorMessages.required),
     });
 
-    const { errors, handleSubmit } = useForm({
-        validationSchema: schema,
-    });
+    const { fields, errors, submitForm } = useFormHandler(schema, onSuccess, onInvalidSubmit);
 
-    const { value: email } = useField('email')
-    const { value: password } = useField('password')
-
-    const submitForm = handleSubmit(onSuccess, onInvalidSubmit);
-
-    function onSuccess(values) {
-        if ('login' === mode.value) {
-            login(email.value, password.value)
-        } else {
-            signup(email.value, password.value);
+    async function onSuccess(values) {
+        try {
+            const response = await login(values.email, values.password)
+            console.log('success', response);
+            showSnackbar('You are successfully logged in', 'success');
+            await router.replace('/');
+        } catch (error) {
+            showSnackbar(error, 'error');
         }
-        router.replace('/');
-        console.log('submitForm');
     }
 
     function onInvalidSubmit({ values, errors, results }) {
-        // console.log(values); // current form values
-        // console.log(errors); // a map of field names and their first error message
-        // console.log(results); // a detailed map of field names and their validation results
+        console.log(values); // current form values
+        console.log(errors); // a map of field names and their first error message
+        console.log(results); // a detailed map of field names and their validation results
     }
 </script>
 
@@ -53,7 +49,7 @@
                     <BaseTextField
                         label="Email"
                         type="email"
-                        v-model="email"
+                        v-model="fields['email']"
                     />
                     <ErrorMessage v-if="errors.email" :message="errors.email" />
                 </div>
@@ -62,7 +58,7 @@
                     <BaseTextField
                         label="Password"
                         type="password"
-                        v-model="password"
+                        v-model="fields['password']"
                     />
                     <ErrorMessage v-if="errors.password" :message="errors.password" />
                 </div>
@@ -72,14 +68,10 @@
                 <BaseButton
                     type="submit"
                     text="Login"
-                    :loading="loggingIn"
+                    :loading="isLoggingIn"
                 />
                 <UserSignup />
             </div>
         </v-form>
     </v-sheet>
 </template>
-
-<style scoped>
-
-</style>

@@ -7,12 +7,12 @@ export const useAuthStore = defineStore('auth', () => {
     const token = ref(null)
     const tokenExpiration = ref(null)
     const isAuthenticated = ref(false)
-    const loggingIn = ref(false)
+    const isLoggingIn = ref(false)
     const signingUp = ref(false)
     let timer = null
 
     async function login(email, password) {
-        loggingIn.value = true
+        isLoggingIn.value = true
         const url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA-1BaNg1DjyKuS2zGNmZNCcj_cXdpFez4'
         try {
             const response = await axios.post(url, {
@@ -37,10 +37,12 @@ export const useAuthStore = defineStore('auth', () => {
                     logout()
                 }, expiresIn)
             }
+            return response.data;
         } catch (error) {
-            console.log(error)
+            console.error('Login error:', error);
+            throw new Error(error?.response?.data?.error?.message || 'An error occurred during login.');
         } finally {
-            loggingIn.value = false
+            isLoggingIn.value = false
         }
     }
 
@@ -80,9 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
             }
             return response.data;
         } catch (error) {
-            console.log('error_msg', error.message)
-            console.log('error_res', error.response.data.error.message)
-            throw new Error('An error occurred during signup. Please try again.');
+            throw new Error(error?.response?.data?.error?.message || 'An error occurred during signup. Please try again later.');
         } finally {
             signingUp.value = false
         }
@@ -102,7 +102,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         userId,
         login,
-        loggingIn,
+        isLoggingIn,
         autoLogin,
         logout,
         signup,

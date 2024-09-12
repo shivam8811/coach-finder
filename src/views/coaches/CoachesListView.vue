@@ -5,6 +5,7 @@
     import { onMounted, ref } from 'vue';
     import { storeToRefs } from 'pinia';
     import { useAuthStore } from '@/stores/auth.js';
+    import { useSnackbarStore } from '@/stores/snackbar.js';
 
     const coachStore = useCoachStore()
     const { hasCoaches, coaches, loadingCoaches } = storeToRefs(coachStore)
@@ -12,6 +13,9 @@
 
     const authStore = useAuthStore()
     const { isAuthenticated } = storeToRefs(authStore)
+
+    const snackbarStore = useSnackbarStore();
+    const { snackbar } = storeToRefs(snackbarStore);
 
     onMounted(() => {
         loadCoaches()
@@ -44,6 +48,13 @@
 </script>
 
 <template>
+    <v-snackbar
+        v-model="snackbar.visible"
+        :timeout="snackbar.timeout"
+        :color="snackbar.color"
+    >
+        {{ snackbar.message }}
+    </v-snackbar>
     <CoachFilter @apply-filters="handleApplyFilters" @reset-filters="resetFilters" />
     <section class="mt-5">
         <base-card>

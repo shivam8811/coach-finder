@@ -6,18 +6,17 @@ import { reactive, ref } from 'vue';
     import ErrorMessage from '@/components/ErrorMessage.vue';
     import { useFormHandler } from '@/composables/formHandler.js';
     import { errorMessages } from '@/config/errorMessages.js';
+    import { useSnackbarStore } from '@/stores/snackbar.js';
 
     const showSignupForm = ref(false);
+
     const authStore = useAuthStore();
     const { signingUp } = storeToRefs(authStore);
     const { signup } = authStore;
 
-    const snackbar = reactive({
-        visible: false,
-        message: '',
-        timeout: 3000,
-        color: 'success',
-    });
+    const snackbarStore = useSnackbarStore();
+    const { showSnackbar } = snackbarStore;
+    const { snackbar } = storeToRefs(snackbarStore);
 
     const schema = yup.object({
         firstName: yup.string().required(errorMessages.required('First name')),
@@ -26,7 +25,9 @@ import { reactive, ref } from 'vue';
         email: yup.string().required(errorMessages.required).email(errorMessages.type.email),
         phone: yup.string(),
         password: yup.string().required(errorMessages.required('Password')),
-        confirmPassword: yup.string().required(errorMessages.required('Please confirm password', true)),
+        confirmPassword: yup.string()
+            .oneOf([yup.ref('password')], 'Passwords must match')
+            .required(errorMessages.required('Please confirm password', true)),
     });
     const { fields, errors, submitForm } = useFormHandler(schema, onSuccess, onInvalidSubmit);
 
@@ -43,12 +44,6 @@ import { reactive, ref } from 'vue';
         }
     }
 
-    function showSnackbar(message = '', color = 'success') {
-        snackbar.visible = true;
-        snackbar.message = message;
-        snackbar.color = color;
-    }
-
     function onInvalidSubmit({ values, errors, results }) {
         console.log('errors:::'); // current form values
         console.log(values); // current form values
@@ -58,7 +53,7 @@ import { reactive, ref } from 'vue';
 </script>
 
 <template>
-    <div class="pa-4 text-center">{{ snackbar.visible }}
+    <div class="pa-4 text-center">
         <v-snackbar
             v-model="snackbar.visible"
             :timeout="snackbar.timeout"
@@ -170,7 +165,3 @@ import { reactive, ref } from 'vue';
         </v-dialog>
     </div>
 </template>
-
-<style scoped>
-
-</style>
