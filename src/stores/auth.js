@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue';
 import axios from 'axios';
+import router from '@/router/index.js';
+import { useSnackbarStore } from '@/stores/snackbar.js';
 
 export const useAuthStore = defineStore('auth', () => {
     const userId = ref(null)
@@ -96,6 +98,8 @@ export const useAuthStore = defineStore('auth', () => {
         userId.value = null
         token.value = null
         isAuthenticated.value = false
+        router.replace('/auth').then(r => r)
+        useSnackbarStore().showSnackbar('You have been logged out.', 'success')
     }
 
     return {
