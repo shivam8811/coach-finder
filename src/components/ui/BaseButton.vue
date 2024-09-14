@@ -44,7 +44,6 @@
         class="base-button"
         :to="to"
         rounded
-        variant="outlined"
     >
         {{ text }}
         <slot></slot>

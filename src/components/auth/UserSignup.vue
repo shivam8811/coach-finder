@@ -104,7 +104,7 @@ import { reactive, ref } from 'vue';
                                 label="E-Mail*"
                                 type="email"
                                 v-model.trim="fields['email']"
-                                prepend-inner-icon="mdi-at"
+                                prepend-inner-icon="mdi-email"
                             />
                             <ErrorMessage v-if="errors.email" :message="errors.email" />
                         </v-col>
@@ -125,6 +125,7 @@ import { reactive, ref } from 'vue';
                                 label="Password*"
                                 type="password"
                                 v-model="fields['password']"
+                                prepend-inner-icon="mdi-lock"
                             />
                             <ErrorMessage v-if="errors.password" :message="errors.password" />
                         </v-col>
@@ -134,6 +135,7 @@ import { reactive, ref } from 'vue';
                                 label="Confirm password*"
                                 type="password"
                                 v-model="fields['confirmPassword']"
+                                prepend-inner-icon="mdi-lock"
                             />
                             <ErrorMessage v-if="errors.confirmPassword" :message="errors.confirmPassword" />
                         </v-col>

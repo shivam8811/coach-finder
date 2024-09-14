@@ -17,8 +17,8 @@
     const { showSnackbar } = snackbarStore;
 
     const schema = yup.object({
-        email: yup.string().required(errorMessages.required).email(errorMessages.type.email),
-        password: yup.string().required(errorMessages.required),
+        email: yup.string().required(errorMessages.required('Email')).email(errorMessages.type.email),
+        password: yup.string().required(errorMessages.required('Password')),
     });
 
     const { fields, errors, submitForm } = useFormHandler(schema, onSuccess, onInvalidSubmit);
@@ -27,8 +27,8 @@
         try {
             const response = await login(values.email, values.password)
             console.log('success', response);
-            showSnackbar('You are successfully logged in', 'success');
             await router.replace('/');
+            showSnackbar('You are successfully logged in', 'success');
         } catch (error) {
             showSnackbar(error, 'error');
         }
@@ -50,6 +50,7 @@
                         label="Email"
                         type="email"
                         v-model="fields['email']"
+                        prepend-inner-icon="mdi-email"
                     />
                     <ErrorMessage v-if="errors.email" :message="errors.email" />
                 </div>
@@ -59,6 +60,7 @@
                         label="Password"
                         type="password"
                         v-model="fields['password']"
+                        prepend-inner-icon="mdi-lock"
                     />
                     <ErrorMessage v-if="errors.password" :message="errors.password" />
                 </div>

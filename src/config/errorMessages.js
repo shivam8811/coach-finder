@@ -1,5 +1,3 @@
-// src/config/errorMessages.js
-
 export const errorMessages = {
     required: (field, customMessage = false) => {
         let prefix = 'This field';
@@ -14,5 +12,6 @@ export const errorMessages = {
     type: {
         email: 'Invalid E-Mail',
         phone: 'Invalid phone number',
+        number: 'Input must be a number',
     },
 };

@@ -58,11 +58,12 @@
     <CoachFilter @apply-filters="handleApplyFilters" @reset-filters="resetFilters" />
     <section class="mt-5">
         <base-card>
-            <div class="controls d-flex justify-md-space-between">
-                <base-button @click="loadCoaches">
+            <div class="d-flex flex-column flex-md-row justify-md-space-between">
+                <base-button @click="loadCoaches" class="mb-2">
                     Refresh
                 </base-button>
-                <base-button v-if="isAuthenticated" link to="/register">
+
+                <base-button v-if="isAuthenticated" link rounded="xs" to="/register">
                     Register as a coach
                 </base-button>
             </div>

@@ -12,6 +12,10 @@
             type: String,
             default: '',
         },
+        appendInnerIcon: {
+            type: String,
+            default: '',
+        },
     })
 </script>
 
@@ -20,6 +24,7 @@
         :label="label"
         :type="type"
         :prepend-inner-icon="prependInnerIcon"
+        :append-inner-icon="appendInnerIcon"
         density="comfortable"
         variant="outlined"
         hide-details

@@ -1,38 +1,31 @@
 <script setup>
     import BaseButton from '@/components/ui/BaseButton.vue';
     import axios from 'axios';
-    import { useField, useForm } from 'vee-validate';
     import * as yup from 'yup';
     import ErrorMessage from '@/components/ErrorMessage.vue';
     import { onMounted } from 'vue';
     import { useRouter } from 'vue-router';
+    import { errorMessages } from '@/config/errorMessages.js';
+    import { useFormHandler } from '@/composables/formHandler.js';
+    import { useSnackbarStore } from '@/stores/snackbar.js';
 
     const router = useRouter();
 
     const props = defineProps({
         id: String,
     })
-    onMounted(() => {
-        console.log('coach id', props.id)
-    })
+
+    const snackbarStore = useSnackbarStore();
+    const { showSnackbar } = snackbarStore;
 
     const schema = yup.object({
-        firstName: yup.string().required(),
-        lastName: yup.string().required(),
-        email: yup.string().required().email(),
+        firstName: yup.string().required(errorMessages.required('First name')),
+        lastName: yup.string().required(errorMessages.required('Last name')),
+        email: yup.string().required(errorMessages.required('Email')).email(),
         message: yup.string(),
     });
 
-    const { errors, handleSubmit } = useForm({
-        validationSchema: schema,
-    });
-
-    const { value: firstName } = useField('firstName')
-    const { value: lastName } = useField('lastName')
-    const { value: email } = useField('email')
-    const { value: message } = useField('message')
-
-    const submitForm = handleSubmit(onSuccess, onInvalidSubmit);
+    const { fields, errors, submitForm } = useFormHandler(schema, onSuccess, onInvalidSubmit);
 
     async function onSuccess(values) {
         const formData = {
@@ -49,17 +42,17 @@
         try {
             const response = await axios.put(`https://coach-finder-3a531-default-rtdb.europe-west1.firebasedatabase.app/requests/${ props.id }.json`, data)
             console.log('success', response.data)
-            router.replace('/');
+            showSnackbar('Thank you for contacting coach.', 'success');
+            await router.replace('/');
         } catch (error) {
-            console.error(error);
-        } finally {
+            showSnackbar(error, 'error');
         }
     }
 
     function onInvalidSubmit({ values, errors, results }) {
-        // console.log(values); // current form values
-        // console.log(errors); // a map of field names and their first error message
-        // console.log(results); // a detailed map of field names and their validation results
+        console.log(values); // current form values
+        console.log(errors); // a map of field names and their first error message
+        console.log(results); // a detailed map of field names and their validation results
     }
 </script>
 
@@ -74,19 +67,19 @@
 
             <v-row>
                 <v-col cols="12" md="6">
-                    <BaseTextField v-model.trim="firstName" label="First name*" />
+                    <BaseTextField v-model.trim="fields.firstName" label="First name*" />
                     <ErrorMessage :message="errors.firstName" />
                 </v-col>
 
                 <v-col cols="12" md="6">
-                    <BaseTextField v-model.trim="lastName" label="Last name*" />
+                    <BaseTextField v-model.trim="fields.lastName" label="Last name*" />
                     <ErrorMessage :message="errors.lastName" />
                 </v-col>
             </v-row>
 
             <v-row>
                 <v-col>
-                    <BaseTextField v-model="email" label="E-Mail*" />
+                    <BaseTextField v-model="fields.email" label="E-Mail*" />
                     <ErrorMessage :message="errors.email" />
                 </v-col>
             </v-row>
@@ -94,8 +87,8 @@
             <v-row>
                 <v-col>
                     <v-textarea
-                        v-model="message"
-                        label="Description"
+                        v-model="fields.message"
+                        label="Message"
                         variant="outlined"
                         hide-details
                     ></v-textarea>
